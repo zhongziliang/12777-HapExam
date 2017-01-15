@@ -1,0 +1,256 @@
+<#include "/include/header.html">
+    <meta charset="UTF-8">
+    <body>
+    <script src="${base.contextPath}/common/code?resourceTypeData=SYS.RESOURCE_TYPE&codeYesNo=SYS.YES_NO&gender=HR.EMPLOYEE_GENDER" type="text/javascript"></script>
+    <!--引入kendo ui 导出 excel 官方库-->
+    <script src="http://kendo.cdn.telerik.com/2016.3.1028/js/jszip.min.js"></script>
+
+    <script>
+        function onShow(e) {
+            if (e.sender.getNotifications().length == 1) {
+                var element = e.element.parent(),
+                    eWidth = element.width(),
+                    eHeight = element.height(),
+                    wWidth = $(window).width(),
+                    wHeight = $(window).height(),
+                    newTop, newLeft;
+
+                newLeft = Math.floor(wWidth / 2 - eWidth / 2);
+                newTop = Math.floor(wHeight / 2 - eHeight / 2);
+
+                e.element.parent().css({
+                    top: newTop,
+                    left: newLeft
+                });
+            }
+        }
+    </script>
+    <script type="text/javascript">
+
+        var viewModel = kendo.observable({
+            model:{
+                companyNames:{},
+                customerNames:{},
+                lines:[],
+                item:{},
+            },
+            queryResource : function(e) {
+                $('#orderCollectionGrid').data('kendoGrid').dataSource.page(1);
+            },
+            resetForm : function (e) {
+                var formData = viewModel.model.toJSON();
+                //alert(JSON.stringify(formData));
+                 for (var k in formData) {
+                    viewModel.model.set(k, null);
+                }
+            }
+        });
+    </script>
+    <div id="win"></div>
+    <div style="padding:15px 15px 0">
+        <div id="page-content">
+            <div class="col-sm-12" >
+                <div class="panel">
+                    <form class="form-horizontal" id="form1">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-1 ">公司名称:</label>
+                                <div class="col-sm-3">
+                                    <input id="company" name="companyname" required placeholder="lov" data-bind="value:model.companyId" style="width: 100%"/>
+                                    <span class="k-invalid-msg" data-for="lov"></span>
+                                </div>
+                                <script>
+                                    $("#company").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "LOV_CompanyNameID")}, {
+                                    }))
+                                    kendo.bind($('#company'), viewModel);
+                                </script>
+                                <label class="col-sm-1 ">客户名称:</label>
+                                <div class="col-sm-3">
+                                    <input id="client" name="clientname" required placeholder="lov" data-bind="value:model.customerId" style="width: 100%"/>
+                                    <span class="k-invalid-msg" data-for="lov"></span>
+                                </div>
+                                <script>
+                                $("#client").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "QueryClient")}, {
+                                }))
+                                kendo.bind($('#client'), viewModel);
+                            </script>
+                                <label class="col-sm-1 ">销售订单号:</label>
+                                <div class="col-sm-3">
+                                    <input type="text" name="orderNumber"  id="orderNumber" data-role="maskedtextbox" data-bind="enabled: isEnabled, value:model.headerId"
+                                           style="width:100%" class="k-textbox">
+                                </div>
+                                <script>
+                                    kendo.bind($('#orderNumber'), viewModel);
+                                </script>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 ">物料:</label>
+                                <div class="col-sm-3">
+                                    <input id="material" name="resourceName" required placeholder="lov" data-bind="value:model.item.inventoryItemId" style="width: 100%"/>
+                                    <span class="k-invalid-msg" data-for="lov"></span>
+                                </div>
+                                <script>
+                                    $("#material").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "materialQuery")}, {
+                                    }))
+                                    kendo.bind($('#material'), viewModel);
+                                </script>
+                                <label class="col-sm-1">订单状态:</label>
+                                <div class="col-sm-3">
+                                    <input id="categories" style="width: 100%;" name="status"  data-bind="value:model.orderStatus">
+                                </div>
+                                <script type="text/javascript">
+                                    $("#categories").kendoDropDownList({
+                                        dataSource: [
+                                            {text: "新建", value: "NEW"},
+                                            {text: "已提交", value: "SUBMITED"},
+                                            {text: "已审批", value: "APPROVED"},
+                                            {text: "已拒绝", value: "REJECTED"}],
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        valuePrimitive: true
+                                    }).data("kendoDropDownList");
+                                    kendo.bind($('#categories'), viewModel);
+                                </script>
+                            </div>
+                            <div class="pull-left" id="toolbar-btn" style="vertical-align: middle">
+                                <span class="btn btn-primary k-grid-add" style="float:left;margin-right:5px;"
+                                     data-bind="click:queryResource"><@spring.message "hap.query"/></span>
+                                <!--<span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"
+                                      data-bind="click:resetForm"><@spring.message "hap.reset"/></span>-->
+                                <span  id="export"  class="btn btn-primary" style="float:left;margin-right:5px;" class="k-icon k-i-excel"><@spring.message "hap.exportexcel"/></span>
+                            </div>
+                            <script>kendo.bind($('#toolbar-btn'), viewModel);</script>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12" style="height:400px;clear:both">
+                <div id="orderCollectionGrid" style=""></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toOrder_detail() {
+            target=false;
+            self.location=("order_detail.html?headerId="+0);
+        }
+
+    </script>
+    <script>
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        //显示数据库到表格的数据
+                        url: "/order/querySimpleOrder",
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: "json",
+                    },parameterMap: function (options, type) {
+                        if (type === "read") {
+                             console.info(viewModel.model.toJSON());
+                             return  kendo.stringify(Hap.prepareQueryParameter(viewModel.model.toJSON(), options));
+                        }
+                    }
+                },
+                excel: {
+                    fileName: "订单.xlsx",
+                    proxyURL: "//demos.telerik.com/kendo-ui/service/export",
+                    filterable: true
+                },
+                batch: true,
+                serverPaging: true,
+                pageSize: 10,
+                schema      : {
+                    data  : 'rows',
+                    total : 'total',
+                    model : {
+                    }
+                }
+            });
+
+       var orderCollectionGrid= $("#orderCollectionGrid").kendoGrid({
+            dataSource: dataSource,
+            height: '100%',
+            resizable: true,
+            selectable: 'multiple, rowbox',
+            rownumber: true,
+            //scrollable: false,
+            navigatable: false,
+            pageable: {
+                pageSizes: [ 5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            toolbar: [{
+                name: "create",
+                template: '<span class="btn btn-primary" onclick="toOrder_detail()">#=text#</span>'
+            } ],
+            columns: [{
+                    field: "headerId",
+                    title: '销售订单号',
+                    width: 140,
+                    template: function (dataItem) {
+                        return '<a href="javascript:void(0);" onclick="editData('+dataItem.headerId +')">'+dataItem.headerId+'</a>'
+                    }}, {
+                    field: "companyNames.companyName",
+                    title: '公司名称',
+                    width: 120,
+                    }, {
+                    field: "customerNames.customerName",
+                    title: '客户名称',
+                    width: 120,
+                    }, {
+                    field: "orderDate",
+                    title: '订单日期',
+                    width: 180,
+                    }, {
+                    field: "orderStatus",
+                    title: '订单状态',
+                    width: 140,
+                      template: function(dataItem) {
+                            var status = dataItem.orderStatus;
+                                switch (status){
+                                    case "NEW":
+                                        return "<span class='text-success'>新建</span>";break;
+                                    case "SUBMITED":
+                                        return "<span class='text-success'>已提交</span>";break;
+                                    case "APPROVED":
+                                        return "<span class='text-success'>已审批</span>";break;
+                                    case "REJECTED":
+                                        return "<span class='text-danger'>已拒绝</span>";break;
+                                    default:
+                                        return status;
+                                }
+                    }
+                }, {
+                    title: '订单金额',
+                    width: 140,
+                    template: function (dataItem) {
+                        var count=0;
+                        $.each(dataItem.lines,function (key,val) {
+                            count+=val.orderdQuantity*val.unitSellingPrice;
+                        });
+                        return count;
+                    }
+                }
+            ]
+        }).data("kendoGrid");
+        Hap.autoResizeGrid("#orderCollectionGrid");
+            //导出excel函数
+            $("#export").click(function() {
+                orderCollectionGrid.saveAsExcel();
+            });
+       //新建时调用的界面
+             editData = function (headerId) {
+                 target=false;
+                 //alert(headerId);
+                 self.location=("order_detail.html?headerId="+headerId);
+                 //location.href="/hapExamView/order.html?headerId"+headerId;
+             };
+    </script>
+    </body>
+    </html>

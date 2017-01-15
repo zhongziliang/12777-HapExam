@@ -1,0 +1,804 @@
+<#include "/include/header.html">
+    <body>
+    <style>
+        span.k-widget.k-tooltip.k-tooltip-validation.k-invalid-msg {
+            position: absolute;
+            width: 64px;
+            top: 3px;
+            right: -52px;
+        }
+    </style>
+    <!--编辑订单页面-->
+    <!--获取订单状态-->
+    <script src="${base.contextPath}/common/code?orderStatus=HAP_OM_ORDER_STATUS" type="text/javascript"></script>
+    <!--引入kendo ui 导出 excel 官方库-->
+    <script src="http://kendo.cdn.telerik.com/2016.3.1028/js/jszip.min.js"></script>
+    <script type="text/javascript">
+        //获取headerId
+        var headerId =${RequestParameters.headerId};
+        //alert(headerId);
+        //初始化数据信息
+        if (headerId != 0) {
+            //编辑
+            $.ajax({
+                url: "/order/query/" + headerId,
+                type:"GET",
+                contentType:"application/json",
+                dataType:"json",
+                success: function (data) {
+                    var item = data.rows[0] || {};
+                    for (var k in item) {
+                        viewModel.model.set(k, item[k]);
+                    }
+                    var money=0;
+                    $.each(item.lines,function (key,val) {
+                        money+=val.orderdQuantity*val.unitSellingPrice;
+                    });
+                    $("#price").val(money);
+                    console.log(data);
+                }
+            });
+        }
+        //定义数据源
+        var viewModel = kendo.observable({
+            model:{
+                companyNames:{},
+                customerNames:{},
+                lines:[],
+                item:{}
+            },
+            createFunctionGrid1:function(){
+                $('#grid').data('kendoGrid').addRow();
+            },
+            createFunctionGrid2:function(){
+                $('#grid1').data('kendoGrid').addRow();
+            },
+            orderStatus: orderStatus,
+            //保存(新建)
+            saveData: function () {
+                var validator = $(".form-horizontal").data("kendoValidator");
+                if (headerId == 0) {
+                    //新增数据
+                    if (validator.validate()) {
+                        var postData = {
+                            orderNumber: $("#orderNumber").val(),
+                            companyId: $("#companyId").val(),
+                            orderDate: $("#orderDate").val(),
+                            orderStatus: "NEW",
+                            customerId: $("#customerId").val(),
+                            creationDate: $("#orderDate").val(),
+                            createdBy: '${Session.userId}',
+                            lastUpdatedBy: '${Session.userId}',
+                            lastUpdateDate: $("#orderDate").val(),
+                            objectVersionNumber: 1
+                        };
+                        $.ajax({
+                            url: "/order/insert",
+                            data: JSON.stringify(postData),
+                            contentType: "application/json",
+                            dataType: "json",
+                            type: "POST",
+                            success: function (data) {
+                                    kendo.ui.showInfoDialog({
+                                        message: '添加成功!'
+                                    }).done(function () {
+                                        //parent.openTab("set_" + data.rows[0].orderNumber, data.rows[0].orderNumber, 'salesOrder/orderEdit.html?headerId=' + data.rows[0].headerId);
+                                        //parent.closeTab("ORDER_NEW");
+                                        window.location.reload();
+                                    });
+                            },
+                            error:function (data) {
+                                kendo.ui.showWarningDialog({
+                                    message: '添加失败'
+                                }).done(function () {
+                                    window.location.reload();
+                                });
+
+                            }
+                        });
+                    }
+                }else{
+                    //更新数据
+                    var postData1 = {
+                        headerId: headerId,
+                        objectVersionNumber: viewModel.model.objectVersionNumber,
+                        companyId: $("#companyId").val(),
+                        orderStatus: $("#orderStatus").val(),
+                        customerId: $("#customerId").val(),
+                        lastUpdatedBy: '${Session.userId}',
+                        lastUpdateDate: new Date(),
+                        orderDate: viewModel.model.orderDate
+                    };
+                   //alert(JSON.stringify(postData1)+"-----------------------------");
+                    $.ajax({
+                        url: "/order/updateMsg",
+                        contentType: "application/json",
+                        dataType: "json",
+                        type: "POST",
+                        data: JSON.stringify(postData1),
+                        success: function (data) {
+                                //var item = data.rows[0] || {};
+                                //viewModel.model.set("objectVersionNumber", item["objectVersionNumber"]);
+                                kendo.ui.showInfoDialog({
+                                    message: '更新成功!'
+                                }).done(function () {
+                                    window.location.reload();
+                                });
+                        },
+                        error:function (date) {
+                            kendo.ui.showWarningDialog({
+                                message: '更新失败!'
+                            }).done(function () {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            },
+            //提交
+            submitData: function () {
+                $.ajax({
+                    url: "/order/update",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        orderStatus: 'SUBMITED',
+                        headerId: headerId,
+                        objectVersionNumber: viewModel.model.objectVersionNumber
+                    }),
+                    success: function (data) {
+                            kendo.ui.showInfoDialog({
+                                message: "提交成功"
+                            }).done(function () {
+                                window.location.reload();
+                            });
+                    },
+                    error:function (date) {
+                        kendo.ui.showErrorDialog({
+                            message: "提交失败"
+                        }).done(function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            },
+
+            //审批
+            approvedData: function () {
+                $.ajax({
+                    url: "/order/update",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        orderStatus: 'APPROVED',
+                        headerId: headerId,
+                        objectVersionNumber: viewModel.model.objectVersionNumber
+                    }),
+                    success: function (data) {
+                            kendo.ui.showInfoDialog({
+                                message: "审批成功"
+                            }).done(function () {
+                                window.location.reload();
+                            });
+                    },
+                    error:function (date) {
+                        kendo.ui.showErrorDialog({
+                            message: "审批失败"
+                        }).done(function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            },
+            //拒绝
+            rejectedData: function () {
+                $.ajax({
+                    url: "/order/update",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        orderStatus: 'REJECTED',
+                        headerId: headerId,
+                        objectVersionNumber: viewModel.model.objectVersionNumber
+                    }),
+                    success: function (data) {
+                            kendo.ui.showInfoDialog({
+                                message: "拒绝成功"
+                            }).done(function () {
+                                window.location.reload();
+                            });
+                    },
+                    error:function (date) {
+                        kendo.ui.showErrorDialog({
+                            message: "拒绝失败"
+                        }).done(function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            },
+            //删除整条
+            deleteData: function () {
+                kendo.ui.showConfirmDialog({
+                    title: '提示',
+                    message: '确认删除么?',
+                }).done(function (e) {
+                    if(e.button == 'OK'){
+                        $.ajax({
+                            url: "/order/delete/" + headerId,
+                            contentType: "application/json",
+                            dataType: "json",
+                            type: "DELETE",
+                            success: function (data) {
+                                kendo.ui.showInfoDialog({
+                                    message: '删除成功!'
+                                }).done(function () {
+                                    window.location.reload();
+                                });
+                            },
+                            error:function (date) {
+                                kendo.ui.showErrorDialog({
+                                    message: '删除失败!'
+                                }).done(function () {
+                                    window.location.reload();
+                                })
+                            }
+                        });
+                    }
+                })
+            }
+
+        });
+
+    </script>
+    <script>
+        function back() {
+            target=true;
+            location.href="/hapExamView/order_collect_query.html";
+        }
+
+    </script>
+    <div class="col-sm-12" style="margin-top: 10px;">
+        <div id="page-content">
+            <div class="panel" style="padding: 0px;border:none;box-shadow: none;">
+                <form class="form-horizontal" id="myForm">
+                    <div class="panel-body">
+                        <div class="row" style="margin-bottom: 10px;">
+                            <!--订单编号-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">订单编号：</label>
+                                    <div class="col-sm-8">
+                                        <input id="orderNumber" data-bind="value:model.orderNumber" required
+                                               validationMessage="必输" type="text" name="orderNumber"
+                                               data-role="maskedtextbox" style="width:100%;" class="k-textbox">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--公司名称-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">公司名称：</label>
+                                    <div class="col-sm-8">
+                                        <input style="width: 100%" id="companyId" required validationMessage="必输"
+                                               data-bind="value:model.companyNames.companyId,text:model.companyNames.companyName"/>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!--客户名称-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">客户名称：</label>
+                                    <div class="col-sm-8">
+                                        <input style="width: 100%" id="customerId" required validationMessage="必输"
+                                               data-bind="value:model.customerNames.customerId,text:model.customerNames.customerName"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!--订单日期-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">订单日期</label>
+                                    <div class="col-sm-8">
+                                        <input id="orderDate" type="text"
+                                               style="width: 100%;background-color:#DDD"
+                                               name="orderDate" data-bind="value:model.orderDate"
+                                               disabled="disabled" class="k-datetimepicker">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--订单总金额-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">订单总金额：</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-bind="value:model.money" disabled validationMessage="必输"
+                                               id="price" name="price" data-role="maskedtextbox" style="width:100%;"
+                                               class="k-textbox">
+                                    </div>
+                                </div>
+                            </div>
+                            <!--订单状态-->
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">订单状态：</label>
+                                    <div class="col-sm-8">
+                                        <select id="orderStatus" data-role="combobox" data-value-primitive="true"
+                                                style="width:100%" name="orderStatus"
+                                                data-text-field="meaning" data-value-field="value"
+                                                data-bind="source: orderStatus, value: model.orderStatus">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <!--保存-->
+                        <span id="save-btn" class="btn btn-success" data-bind="click:saveData">保存</span>
+                        <!--提交-->
+                        <span id="submit-btn" class="btn btn-info" data-bind="click:submitData">提交</span>
+                        <!--审批-->
+                        <span id="approve-btn" class="btn btn-primary approved" data-bind="click:approvedData">审批</span>
+                        <!--拒绝-->
+                        <span id="reject-btn" class="btn btn-warning rejected" data-bind="click:rejectedData">拒绝</span>
+                        <!--删除-->
+                        <span id="delete-btn" class="btn btn-danger" data-bind="click:deleteData">整单删除</span>
+                        <!--导出excel-->
+                        <span class="btn btn-primary k-grid-add" onclick="back()" style="float:left;margin-right:5px;">返回</span>
+                        <span  id="export"  class="btn btn-primary" style="float:left;margin-right:5px;" class="k-icon k-i-excel"><@spring.message "hap.exportexcel"/></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12" style="height:70px;" >
+                <div id="tabstrip" style="height:100%">
+                    <ul>
+                        <li class="k-state-active">
+                            主要
+                        </li>
+                        <li>
+                            其他
+                        </li>
+                    </ul>
+                    <div>
+                        <div class="weather">
+                            <div class="row">
+                                <div class="col-xs-12" style="height:350px;clear:both">
+                                    <div id="grid" style=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="weather">
+                            <div class="row">
+                                <div class="col-xs-12" style="height:350px;clear:both">
+                                    <div id="grid1" style=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                var tabstrip = $("#tabstrip").kendoTabStrip({
+                    height: '100%',
+                    animation: false
+                }).data("kendoTabStrip");
+                tabstrip.tabGroup.on("click", ".k-i-close", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var item = $(e.target).closest(".k-item");
+                    var index = item.index(),
+                        prev = item.next().length == 1 ? item.next() : item.prev();
+                    tabstrip.remove(item.index());
+                    tabstrip.select(prev)
+                });
+            </script>
+        </div>
+    </div>
+    <script>
+
+        //绑定事件以及数据
+        kendo.bind($('#page-content'), viewModel);
+
+        //新建设置创建日期
+        if (headerId == 0) {
+            viewModel.model.set('orderStatus', "NEW");
+            viewModel.model.set('orderDate', new Date());
+            if (viewModel.model.orderStatus == 'NEW') {
+                //新建
+                $("#reject-btn").attr("disabled", "disabled");
+                $("#approve-btn").attr("disabled", "disabled");
+            }
+        } else {
+            //禁用改变订单号
+            $("#orderNumber").attr("disabled", "disabled");
+            if (viewModel.model.orderStatus == 'NEW') {
+                //新建
+                kendo.ui.showInfoDialog({
+                    message: "新建状态"
+                }).done(function () {
+                    $("#reject-btn").attr("disabled", "disabled");
+                    $("#approve-btn").attr("disabled", "disabled");
+                });
+            } else if (viewModel.model.orderStatus == 'SUBMITED') {
+                //已提交
+                kendo.ui.showInfoDialog({
+                    message: "已提交状态"
+                }).done(function () {
+                    $("a[class='k-button k-button-icontext k-grid-edit']").hide();
+                    $("a[class='k-button k-button-icontext k-grid-delete']").hide();
+                    $("#companyId").kendoLov({}).data("kendoLov").readonly(true);
+                    $("#customerId").kendoLov({}).data("kendoLov").readonly(true);
+                    $("#save-btn").attr("disabled", "disabled");
+                    $("#submit-btn").attr("disabled", "disabled");
+                    $("#delete-btn").attr("disabled", "disabled");
+                });
+            } else if (viewModel.model.orderStatus == 'APPROVED') {
+                //审批
+                kendo.ui.showInfoDialog({
+                    message: "已审批状态"
+                }).done(function () {
+                    $("a[class='k-button k-button-icontext k-grid-edit']").hide();
+                    $("a[class='k-button k-button-icontext k-grid-delete']").hide();
+                    $("#companyId").kendoLov({}).data("kendoLov").readonly(true);
+                    $("#customerId").kendoLov({}).data("kendoLov").readonly(true);
+                    $("#save-btn").attr("disabled", "disabled");
+                    $("#submit-btn").attr("disabled", "disabled");
+                    $("#delete-btn").attr("disabled", "disabled");
+                    $("#approve-btn").attr("disabled", "disabled");
+                    $("#reject-btn").attr("disabled", "disabled");
+                });
+            } else if (viewModel.model.orderStatus == 'REJECTED') {
+                $("#approve-btn").attr("disabled", "disabled");
+                $("#reject-btn").attr("disabled", "disabled");
+            }
+        }
+
+        //设置日期格式
+        $("#orderDate").kendoDateTimePicker({
+            value: new Date(),
+            format: "yyyy-MM-dd HH:mm:ss"
+        });
+        $("#orderStatus").data("kendoComboBox").readonly(true);
+
+        //客户LOV
+        $("#customerId").kendoLov({
+            code: "QueryClient",
+            contextPath: '${base.contextPath}',
+            locale: '${base.locale}',
+        });
+
+        //公司LOV
+        $("#companyId").kendoLov({
+            code: "LOV_CompanyNameID",
+            contextPath: '${base.contextPath}',
+            locale: '${base.locale}',
+        });
+
+        //添加行函数
+        function deleteLine() {
+            //获取选中的项目
+            //判断是否选了项目
+            if (grid.selectedDataItems().length) {
+                var checked = grid.selectedDataItems();
+                kendo.ui.showConfirmDialog({
+                    title: $l('hap.tip.info'),
+                    message: $l('hap.tip.delete_confirm')
+                }).done(function (event) {
+                    if (event.button == 'OK') {
+                        $.each(checked, function (i, v) {
+                            grid.dataSource.remove(v)
+                        })
+                        grid.dataSource.sync();
+                    }
+                })
+            } else {
+                kendo.ui.showErrorDialog({
+                    title: "删除失败",
+                    message: "请至少选择一条数据"
+                })
+            }
+        }
+
+        //定义数据源
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/order/query/" + headerId,
+                    type: "get",
+                    contentType: "application/json",
+                    dataType: "json"
+                },
+                create: {
+                    url: "/lines/addLines",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json"
+                },
+                update: {
+                    url: "/lines/updateLines",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json"
+                },
+                destroy: {
+                    url: "/lines/deleteLines",
+                    contentType: "application/json",
+                    type: "DELETE",
+                    dataType: "json"
+                },
+                parameterMap: function (options, type) {
+                    if (type === "create") {
+                        return kendo.stringify(Hap.prepareSubmitParameter(options, type)[0]);
+                    } else if (type === "update") {
+                        Hap.prepareSubmitParameter(options, type)[0].lastUpdatedBy = '${Session.userId}';
+                        Hap.prepareSubmitParameter(options, type)[0].lastUpdateDate = new Date();
+                        console.log(Hap.prepareSubmitParameter(options, type)[0]);
+                        return kendo.stringify(Hap.prepareSubmitParameter(options, type)[0]);
+                    } else if (type === "destroy") {
+                        return Hap.prepareSubmitParameter(options, type)[0].headerId=headerId;
+                    }
+                }
+            },
+            excel: {
+                fileName: "订单详情.xlsx",
+                proxyURL: "//demos.telerik.com/kendo-ui/service/export",
+                filterable: true
+            },
+           /* requestEnd: function (e) {
+                if (!e.response.success) {
+                    kendo.ui.showErrorDialog({
+                        message: '失败'
+                    }).done(function () {
+                        window.location.reload();
+                    });
+                } else if (e.response.success && e.type == "create") {
+                    kendo.ui.showInfoDialog({
+                        message: '保存成功'
+                    }).done(function () {
+                        window.location.reload();
+                    });
+                }
+            },*/
+            batch: true,
+            serverPaging: true,
+            serverSorting: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "lineId",
+                    fields: {
+                        headerId: {
+                            defaultValue: headerId
+                        },
+                        companyId: {
+                            defaultValue: $("#companyId").val()
+                        },
+                        creationDate: {
+                            defaultValue: new Date()
+                        },
+                        createdBy: {
+                            defaultValue: '${Session.userId}'
+                        },
+                        lastUpdatedBy: {
+                            defaultValue: '${Session.userId}'
+                        },
+                        lastUpdateDate: {
+                            defaultValue: new Date()
+                        }
+                    }
+
+                }
+            }
+        });
+
+        //表格api
+       // alert(dataSource.inventoryItemId);
+        var grid = $("#grid").kendoGrid({
+            dataSource: dataSource,
+            height: '100%',
+            resizable: true,
+            scrollable: true,
+            refresh: true,
+            selectable: 'multiple, rowbox',
+            rownumber: true,
+            navigatable: true,
+            pageable: {
+                pageSizes: ['All', 5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            toolbar: [{
+                name: "create",
+                template: '<span class="btn btn-primary k-grid-add"  data-bind="click:createFunctionGrid1">#=text#</span>'
+            }, {
+                name: "destroy",
+                template: '<a class="btn btn-danger" onclick="deleteLine()">删除</a>'
+            }],
+            columns: [
+                {
+                    field: "lines[0].lineNumber",
+                    title: '行编码',
+                    width: 50,
+                    editor: function (container, options) {
+                        $('<input type="text" id="lineNumber" required data-required-msg="不能为空!" name="' + options.field + '"  class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    field: "item.inventoryItemId",
+                    title: '物料编码',
+                    width: 100,
+                    editor: function (container, options) {
+                        $('<input id="inventoryItemId" required data-required-msg="不能为空!"  name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "materialQuery")}, {
+                                textField: 'inventoryItemId',
+                            }));
+                    }
+                },
+                {
+                    field: "item.itemDescription",
+                    title: '产品描述',
+                    width: 140,
+                    editor: function (container, options) {
+                        $('<input type="text" id="itemDescription"  disabled style="width:100%;background-color: #eee;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    field: "lines[0].orderQuantityUom",
+                    title: '产品单位',
+                    width: 100,
+                    editor: function (container, options) {
+                        $('<input type="text"  name="' + options.field + '" id="orderQuantityUom" style="width:100%;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    field: "lines[0].orderdQuantity",
+                    title: '数量',
+                    width: 100,
+                    editor: function (container, options) {
+                        $('<input type="text"   name="' + options.field + '" required data-required-msg="不能为空!" id="orderdQuantity" style="width:100%;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    field: "lines[0].unitSellingPrice",
+                    title: '销售单价',
+                    width: 80,
+                    editor: function (container, options) {
+                        $('<input type="text"   name="' + options.field + '" required data-required-msg="不能为空!" id="unitSellingPrice" style="width:100%;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    title: '金额',
+                    width: 50,
+                    template: function (dataItem) {
+                        var money1=0;
+                        $.each(dataItem.lines,function (key,val) {
+                            money1+=val.orderdQuantity*val.unitSellingPrice;
+                        });
+                        return money1;
+                    },
+                    editor: function (container, options) {
+                        $('<input type="text" disabled style="width:100%;background-color: #eee;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    title: '备注',
+                    width: 50,
+                    field: "lines.description",
+                    editor: function (container, options) {
+                        $('<input type="text"   name="' + options.field + '" required data-required-msg="不能为空!" id="description" style="width:100%;" class="k-textbox">').appendTo(container);
+                    }
+                },
+                {
+                    command: [
+                        {
+                            name: "edit", click: function (e) {
+                            e.preventDefault();
+                            $("#lineNumber").attr("disabled", "disabled");
+                            $("#orderQuantityUom").attr("disabled", "disabled");
+
+                        }
+                        },
+                        {name: 'destroy'}
+                    ],
+                    attributes: {style: "text-align:center"},
+                    width: "10%"
+                }
+
+            ],
+            editable: 'inline' //行内方式编辑
+        }).data("kendoGrid");
+
+        $("#grid1").kendoGrid({
+            dataSource: dataSource,
+            height: '100%',
+            resizable: true,
+            selectable: 'multiple, rowbox',
+            rownumber: true,
+            //scrollable: false,
+            navigatable: true,
+            pageable: {
+                pageSizes: [ 5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            locate: function (e) {
+                var d = this.dataItem(e.element);
+            },
+            toolbar: [{
+                name: "create",
+                template: '<span type="button" class="btn btn-primary k-grid-add" style="float:left;margin-right:5px" data-bind="click:createFunctionGrid2"><@spring.message "hap.new"/></span>'
+            },{
+                name: "save",
+                template: '<span class="btn btn-success k-grid-save-changes" style="float:left;margin-right:5px;"data-bind="click:saveFunction"><@spring.message "hap.save"/></span>'
+            },{
+                name: "delete",
+                template: '<span onclick="deleteData()" class="btn btn-danger"style="float:left;"><@spring.message "hap.delete"/></span>'
+            }],
+            columns: [
+                {
+                    field: "lines[0].attribute1",
+                    title: '附件信息①',
+                    width: 140,
+                },  {
+                    field: "lines[0].attribute2",
+                    title: '附件信息②',
+                    width: 120,
+                },
+
+                {
+                    field: "lines[0].attribute3",
+                    title: '附件信息③',
+                    width: 120,
+                }, {
+                    field: "lines[0].attribute4",
+                    title: '附件信息④',
+                    width: 180,
+                }, {
+                    field: "lines[0].attribute5",
+                    title: '附件信息⑤',
+                    width: 140,
+                },
+            ],
+            save: function (e) {
+                console.log('save')
+            },
+            isSelectable: function (dataItem) {
+                if (dataItem.userSex == 'F') return true;
+                return false;
+
+            },
+            editable: 'inline' //行内方式编辑
+        }).data("kendoGrid");
+
+        //导出excel函数
+        $("#export").click(function() {
+            grid.saveAsExcel();
+        });
+
+        //表单验证
+        var container = $(".form-horizontal");
+        kendo.init(container);
+        container.kendoValidator({
+            messages: {
+                required: "required"
+            }
+        });
+
+
+    </script>
+    </body>
+    </html>

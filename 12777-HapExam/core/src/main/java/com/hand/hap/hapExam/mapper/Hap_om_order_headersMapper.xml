@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.hap.hapExam.mapper.Hap_om_order_headersMapper" >
+  <resultMap id="BaseResultMap" type="com.hand.hap.hapExam.dto.Hap_om_order_headers" >
+    <id column="HEADER_ID" property="headerId" jdbcType="BIGINT" />
+    <result column="ORDER_NUMBER" property="orderNumber" jdbcType="VARCHAR" />
+    <result column="COMPANY_ID" property="companyId" jdbcType="BIGINT" />
+    <result column="ORDER_DATE" property="orderDate" jdbcType="TIMESTAMP" />
+    <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR" />
+    <result column="CUSTOMER_ID" property="customerId" jdbcType="BIGINT" />
+    <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL" />
+    <result column="REQUEST_ID" property="requestId" jdbcType="BIGINT" />
+    <result column="PROGRAM_ID" property="programId" jdbcType="BIGINT" />
+    <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP" />
+    <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+    <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL" />
+    <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="TIMESTAMP" />
+    <result column="LAST_UPDATE_LOGIN" property="lastUpdateLogin" jdbcType="DECIMAL" />
+    <result column="ATTRIBUTE_CATEGORY" property="attributeCategory" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE1" property="attribute1" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE2" property="attribute2" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE3" property="attribute3" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE4" property="attribute4" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE5" property="attribute5" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE6" property="attribute6" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE7" property="attribute7" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE8" property="attribute8" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE9" property="attribute9" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE10" property="attribute10" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE11" property="attribute11" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE12" property="attribute12" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE13" property="attribute13" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE14" property="attribute14" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE15" property="attribute15" jdbcType="VARCHAR" />
+    <!---->
+    <!--公司名称-->
+    <association property="companyNames" javaType="com.hand.hap.hapExam.dto.Hap_org_companys">
+      <id column="COMPANY_ID" property="companyId" jdbcType="BIGINT" />
+      <result column="COMPANY_NAME" property="companyName" jdbcType="VARCHAR" />
+    </association>
+    <!--客户名称-->
+    <association property="customerNames" javaType="com.hand.hap.hapExam.dto.Hap_ar_customers">
+      <id column="CUSTOMER_ID" property="customerId" jdbcType="BIGINT" />
+      <result column="CUSTOMER_NUMBER" property="customerNumber" jdbcType="VARCHAR" />
+      <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR" />
+    </association>
+    <!--物料名称-->
+    <association property="item" javaType="com.hand.hap.hapExam.dto.Hap_inv_inventory_items">
+      <id column="INVENTORY_ITEM_ID" property="inventoryItemId" jdbcType="BIGINT" />
+      <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR" />
+      <result column="ITEM_UOM" property="itemUom" jdbcType="VARCHAR" />
+      <result column="ITEM_DESCRIPTION" property="itemDescription" jdbcType="VARCHAR" />
+      <result column="ORDER_FLAG" property="orderFlag" jdbcType="VARCHAR" />
+      <result column="START_ACTIVE_DATE" property="startActiveDate" jdbcType="TIMESTAMP" />
+      <result column="END_ACTIVE_DATE" property="endActiveDate" jdbcType="TIMESTAMP" />
+      <result column="ENABLED_FLAG" property="enabledFlag" jdbcType="VARCHAR" />
+      <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP" />
+      <result column="CREATED_BY" property="createdBy" jdbcType="BIGINT" />
+      <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="BIGINT" />
+      <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="TIMESTAMP" />
+      <result column="LAST_UPDATE_LOGIN" property="lastUpdateLogin" jdbcType="BIGINT" />
+    </association>
+    <!--数量-->
+    <!--销售单价-->
+    <collection property="lines" ofType="com.hand.hap.hapExam.dto.Hap_om_order_lines">
+      <id column="LINE_ID" property="lineId" jdbcType="BIGINT" />
+      <result column="HEADER_ID" property="headerId" jdbcType="BIGINT" />
+      <result column="LINE_NUMBER" property="lineNumber" jdbcType="BIGINT" />
+      <result column="INVENTORY_ITEM_ID" property="inventoryItemId" jdbcType="BIGINT" />
+      <result column="ORDERD_QUANTITY" property="orderdQuantity" jdbcType="BIGINT" />
+      <result column="ORDER_QUANTITY_UOM" property="orderQuantityUom" jdbcType="VARCHAR" />
+      <result column="UNIT_SELLING_PRICE" property="unitSellingPrice" jdbcType="BIGINT" />
+      <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+      <result column="COMPANY_ID" property="companyId" jdbcType="BIGINT" />
+      <result column="ADDITION1" property="addition1" jdbcType="VARCHAR" />
+      <result column="ADDITION2" property="addition2" jdbcType="VARCHAR" />
+      <result column="ADDITION3" property="addition3" jdbcType="VARCHAR" />
+      <result column="ADDITION4" property="addition4" jdbcType="VARCHAR" />
+      <result column="ADDITION5" property="addition5" jdbcType="VARCHAR" />
+      <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL" />
+      <result column="REQUEST_ID" property="requestId" jdbcType="BIGINT" />
+      <result column="PROGRAM_ID" property="programId" jdbcType="BIGINT" />
+      <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP" />
+      <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL" />
+      <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL" />
+      <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="TIMESTAMP" />
+      <result column="LAST_UPDATE_LOGIN" property="lastUpdateLogin" jdbcType="DECIMAL" />
+      <result column="ATTRIBUTE_CATEGORY" property="attributeCategory" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE1" property="attribute1" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE2" property="attribute2" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE3" property="attribute3" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE4" property="attribute4" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE5" property="attribute5" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE6" property="attribute6" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE7" property="attribute7" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE8" property="attribute8" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE9" property="attribute9" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE10" property="attribute10" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE11" property="attribute11" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE12" property="attribute12" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE13" property="attribute13" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE14" property="attribute14" jdbcType="VARCHAR" />
+      <result column="ATTRIBUTE15" property="attribute15" jdbcType="VARCHAR" />
+    </collection>
+  </resultMap>
+  <!--查询order的简单的信息-->
+  <select id="selectOrderSimpleMsg" resultMap="querySimpleOrder" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers">
+    select hooh.HEADER_ID, hooh.ORDER_DATE,hooh.ORDER_STATUS,hac.CUSTOMER_NAME, hoc.COMPANY_NAME,hool.UNIT_SELLING_PRICE,
+    hool.ORDERD_QUANTITY    FROM
+    hap_om_order_headers hooh  JOIN hap_om_order_lines hool
+    ON (hooh.HEADER_ID = hool.HEADER_ID) JOIN hap_inv_inventory_items hiii
+    ON (hool.INVENTORY_ITEM_ID = hiii.INVENTORY_ITEM_ID) JOIN hap_ar_customers hac
+    ON (hac.CUSTOMER_ID=hooh.CUSTOMER_ID) JOIN hap_org_companys hoc
+    ON (hooh.COMPANY_ID = hoc.COMPANY_ID)
+    <where>
+    <if test="companyId!=null">
+      OR hooh.COMPANY_ID = #{companyId}
+    </if>
+    <if test="customerId!=null">
+      OR hooh.CUSTOMER_ID = #{customerId}
+    </if>
+    <if test="headerId!=null">
+      OR hool.header_id LIKE #{headerId}
+    </if>
+    <if test="item.inventoryItemId!=null">
+      OR hiii.INVENTORY_ITEM_ID LIKE #{item.inventoryItemId}
+    </if>
+    <if test="orderStatus!=null">
+      OR hooh.order_status = #{orderStatus}
+    </if>
+    </where>
+    order by hooh.HEADER_ID
+  </select>
+
+  <!--<select id="queryOrderMsg" resultMap="querySimpleOrder" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers">
+    select hooh.ORDER_NUMBER, hooh.ORDER_DATE,hooh.ORDER_STATUS,hac.CUSTOMER_NAME, hoc.COMPANY_NAME,sum(hool.UNIT_SELLING_PRICE) as UNIT_SELLING_PRICE
+    from hap_org_companys hoc,hap_ar_customers hac,hap_om_order_headers hooh,hap_om_order_lines hool,hap_inv_inventory_items hiii where
+    hoc.COMPANY_ID=hooh.COMPANY_ID and hooh.CUSTOMER_ID=hac.CUSTOMER_ID and hiii.INVENTORY_ITEM_ID=hool.INVENTORY_ITEM_ID
+    and hool.HEADER_ID=hooh.HEADER_ID and hooh.HEADER_ID=#{headerId} and ORDER_NUMBER=#{orderNumber}
+  </select>-->
+
+    <resultMap id="querySimpleOrder" type="com.hand.hap.hapExam.dto.Hap_om_order_headers" >
+      <id column="HEADER_ID" property="headerId" jdbcType="BIGINT" />
+      <result column="ORDER_NUMBER" property="orderNumber" jdbcType="VARCHAR" />
+      <result column="COMPANY_ID" property="companyId" jdbcType="BIGINT" />
+      <result column="ORDER_DATE" property="orderDate" jdbcType="TIMESTAMP" />
+      <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR" />
+      <result column="CUSTOMER_ID" property="customerId" jdbcType="BIGINT" />
+      <association property="companyNames" javaType="com.hand.hap.hapExam.dto.Hap_org_companys">
+        <id column="COMPANY_ID" property="companyId" jdbcType="BIGINT" />
+        <result column="COMPANY_NAME" property="companyName" jdbcType="VARCHAR" />
+      </association>
+      <association property="customerNames" javaType="com.hand.hap.hapExam.dto.Hap_ar_customers">
+        <id column="CUSTOMER_ID" property="customerId" jdbcType="BIGINT" />
+        <result column="CUSTOMER_NUMBER" property="customerNumber" jdbcType="VARCHAR" />
+        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR" />
+      </association>
+      <association property="item" javaType="com.hand.hap.hapExam.dto.Hap_inv_inventory_items">
+        <id column="INVENTORY_ITEM_ID" property="inventoryItemId" jdbcType="BIGINT" />
+        <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR" />
+        <result column="ITEM_UOM" property="itemUom" jdbcType="VARCHAR" />
+      </association>
+      <collection property="lines" ofType="com.hand.hap.hapExam.dto.Hap_om_order_lines">
+        <id column="LINE_ID" property="lineId" jdbcType="BIGINT" />
+        <result column="ORDERD_QUANTITY" property="orderdQuantity" jdbcType="BIGINT" />
+        <result column="ORDER_QUANTITY_UOM" property="orderQuantityUom" jdbcType="VARCHAR" />
+        <result column="UNIT_SELLING_PRICE" property="unitSellingPrice" jdbcType="BIGINT" />
+        <result column="HEADER_ID" property="headerId" jdbcType="BIGINT" />
+      </collection>
+    </resultMap>
+
+
+
+
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+       *
+    from hap_om_order_headers
+    where HEADER_ID = #{headerId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from hap_om_order_headers
+    where HEADER_ID = #{headerId,jdbcType=BIGINT}
+  </delete>
+
+
+  <sql id="base">
+    SELECT
+    headers.HEADER_ID,
+    headers.COMPANY_ID,
+    headers.CUSTOMER_ID,
+    headers.ORDER_NUMBER,
+    headers.ORDER_DATE,
+    headers.ORDER_STATUS,
+    headers.CREATION_DATE,
+    company.COMPANY_NAME,
+    items.INVENTORY_ITEM_ID,
+    items.ITEM_CODE,
+    items.ITEM_DESCRIPTION,
+    customers.CUSTOMER_NAME,
+    line.LINE_NUMBER,
+    line.UNIT_SELLING_PRICE,
+    line.ORDERD_QUANTITY,
+    line.ORDER_QUANTITY_UOM,
+    line.DESCRIPTION,
+    line.LINE_ID,
+    line.ATTRIBUTE1,
+    line.ATTRIBUTE2,
+    line.ATTRIBUTE3,
+    line.ATTRIBUTE4,
+    line.ATTRIBUTE5
+    FROM
+    hap_om_order_headers headers  JOIN hap_om_order_lines line
+    ON (headers.HEADER_ID = line.HEADER_ID) JOIN hap_inv_inventory_items items
+    ON (line.INVENTORY_ITEM_ID = items.INVENTORY_ITEM_ID) JOIN hap_ar_customers customers
+    ON (customers.CUSTOMER_ID=headers.CUSTOMER_ID) JOIN hap_org_companys company
+    ON (headers.COMPANY_ID = company.COMPANY_ID)
+  </sql>
+
+  <select id="all" resultMap="BaseResultMap">
+    <include refid="base" />
+    GROUP BY headers.HEADER_ID
+  </select>
+
+  <insert id="insertHeaders" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers">
+    INSERT INTO hap_om_order_headers(HEADER_ID,ORDER_NUMBER,COMPANY_ID,CUSTOMER_ID,ORDER_STATUS,ORDER_DATE)
+    VALUES (#{headerId},#{orderNumber},#{companyId},#{customerId},#{orderStatus},#{orderDate})
+  </insert>
+
+  <update id="updateHeaders" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers">
+    UPDATE hap_om_order_headers set ORDER_STATUS=#{orderStatus} WHERE HEADER_ID=#{headerId}
+  </update>
+
+  <delete id="deleteHeaders" parameterType="java.lang.Long">
+    DELETE from hap_om_order_headers WHERE HEADER_ID=#{headerId}
+  </delete>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <include refid="base" />
+    WHERE headers.HEADER_ID = #{headerId}
+  </select>
+
+  <update id="updateMsg" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers" >
+    update hap_om_order_headers
+    <set >
+      <if test="companyId != null" >
+        COMPANY_ID = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="orderDate != null" >
+        ORDER_DATE = #{orderDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStatus != null" >
+        ORDER_STATUS = #{orderStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        CUSTOMER_ID = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="objectVersionNumber != null" >
+        OBJECT_VERSION_NUMBER = #{objectVersionNumber,jdbcType=DECIMAL},
+      </if>
+      <if test="creationDate != null" >
+        CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdBy != null" >
+        CREATED_BY = #{createdBy,jdbcType=DECIMAL},
+      </if>
+      <if test="lastUpdatedBy != null" >
+        LAST_UPDATED_BY = #{lastUpdatedBy,jdbcType=DECIMAL},
+      </if>
+      <if test="lastUpdateDate != null" >
+        LAST_UPDATE_DATE = #{lastUpdateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateLogin != null" >
+        LAST_UPDATE_LOGIN = #{lastUpdateLogin,jdbcType=DECIMAL},
+      </if>
+      <if test="attributeCategory != null" >
+        ATTRIBUTE_CATEGORY = #{attributeCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute1 != null" >
+        ATTRIBUTE1 = #{attribute1,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute2 != null" >
+        ATTRIBUTE2 = #{attribute2,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute3 != null" >
+        ATTRIBUTE3 = #{attribute3,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute4 != null" >
+        ATTRIBUTE4 = #{attribute4,jdbcType=VARCHAR},
+      </if>
+      <if test="attribute5 != null" >
+        ATTRIBUTE5 = #{attribute5,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where HEADER_ID = #{headerId}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hand.hap.hapExam.dto.Hap_om_order_headers" >
+
+    update hap_om_order_headers
+    set ORDER_NUMBER = #{orderNumber,jdbcType=VARCHAR},
+      COMPANY_ID = #{companyId,jdbcType=BIGINT},
+      ORDER_DATE = #{orderDate,jdbcType=TIMESTAMP},
+      ORDER_STATUS = #{orderStatus,jdbcType=VARCHAR},
+      CUSTOMER_ID = #{customerId,jdbcType=BIGINT},
+      OBJECT_VERSION_NUMBER = #{objectVersionNumber,jdbcType=DECIMAL},
+      REQUEST_ID = #{requestId,jdbcType=BIGINT},
+      PROGRAM_ID = #{programId,jdbcType=BIGINT},
+      CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      CREATED_BY = #{createdBy,jdbcType=DECIMAL},
+      LAST_UPDATED_BY = #{lastUpdatedBy,jdbcType=DECIMAL},
+      LAST_UPDATE_DATE = #{lastUpdateDate,jdbcType=TIMESTAMP},
+      LAST_UPDATE_LOGIN = #{lastUpdateLogin,jdbcType=DECIMAL},
+      ATTRIBUTE_CATEGORY = #{attributeCategory,jdbcType=VARCHAR},
+      ATTRIBUTE1 = #{attribute1,jdbcType=VARCHAR},
+      ATTRIBUTE2 = #{attribute2,jdbcType=VARCHAR},
+      ATTRIBUTE3 = #{attribute3,jdbcType=VARCHAR},
+      ATTRIBUTE4 = #{attribute4,jdbcType=VARCHAR},
+      ATTRIBUTE5 = #{attribute5,jdbcType=VARCHAR},
+      ATTRIBUTE6 = #{attribute6,jdbcType=VARCHAR},
+      ATTRIBUTE7 = #{attribute7,jdbcType=VARCHAR},
+      ATTRIBUTE8 = #{attribute8,jdbcType=VARCHAR},
+      ATTRIBUTE9 = #{attribute9,jdbcType=VARCHAR},
+      ATTRIBUTE10 = #{attribute10,jdbcType=VARCHAR},
+      ATTRIBUTE11 = #{attribute11,jdbcType=VARCHAR},
+      ATTRIBUTE12 = #{attribute12,jdbcType=VARCHAR},
+      ATTRIBUTE13 = #{attribute13,jdbcType=VARCHAR},
+      ATTRIBUTE14 = #{attribute14,jdbcType=VARCHAR},
+      ATTRIBUTE15 = #{attribute15,jdbcType=VARCHAR}
+    where HEADER_ID = #{headerId,jdbcType=BIGINT}
+  </update>
+</mapper>
